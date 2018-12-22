@@ -1,14 +1,18 @@
 package com.dev.aman.soundcast.SongList;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.dev.aman.soundcast.API.ApiClient;
 import com.dev.aman.soundcast.API.SongListEndPoints;
 import com.dev.aman.soundcast.Adapter.SongListAdapter;
 import com.dev.aman.soundcast.R;
+import com.dev.aman.soundcast.UploadMusicActivity;
 import com.dev.aman.soundcast.model.SongList;
 
 import retrofit2.Call;
@@ -19,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private SongListAdapter adapter;
+    private ImageView mUploadMusic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         init();
-
+        onClick();
         SongListEndPoints apiclient = ApiClient.getClient().create(SongListEndPoints.class);
         apiclient.getSongList().enqueue(new Callback<SongList>() {
             @Override
@@ -42,11 +47,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
     private void init() {
         recyclerView = findViewById(R.id.recyclerView);
+        mUploadMusic = findViewById(R.id.uploadMusic);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void onClick() {
+        mUploadMusic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, UploadMusicActivity.class));
+            }
+        });
     }
 }

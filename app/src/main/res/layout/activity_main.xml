@@ -29,11 +29,23 @@
     </android.support.v7.widget.CardView>
 
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </android.support.v7.widget.RecyclerView>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
+        </android.support.v7.widget.RecyclerView>
+
+        <ImageView
+            android:id="@+id/uploadMusic"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom |right"
+            android:layout_margin="20dp"
+            android:src="@drawable/ic_add_circle_black_24dp"/>
+    </FrameLayout>
 </LinearLayout>

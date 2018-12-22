@@ -138,7 +138,7 @@ public class PlayMusicActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(isPlaying){
-                    pauseMusic ();
+                    pauseMusic();
                     isPlaying = false;
                 }else {
                     playMusic();
@@ -157,6 +157,7 @@ public class PlayMusicActivity extends AppCompatActivity {
                     setContentToScreen(position);
                 }
                 startMusic(link);
+                pause_play.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline_white_24dp));
             }
         });
         previous.setOnClickListener(new View.OnClickListener() {
@@ -170,6 +171,7 @@ public class PlayMusicActivity extends AppCompatActivity {
                     setContentToScreen(position);
                 }
                 startMusic(link);
+                pause_play.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline_white_24dp));
             }
         });
     }
