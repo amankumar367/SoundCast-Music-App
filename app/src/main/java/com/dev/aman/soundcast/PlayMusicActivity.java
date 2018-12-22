@@ -1,20 +1,20 @@
 package com.dev.aman.soundcast;
 
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.dev.aman.soundcast.model.Results;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.List;
 
 public class PlayMusicActivity extends AppCompatActivity {
 
@@ -23,6 +23,11 @@ public class PlayMusicActivity extends AppCompatActivity {
     private String link, thumbnail;
     private MediaPlayer mediaPlayer;
     private SeekBar mSeekBar;
+    private Handler mSeekbarUpdateHandler;
+    private Runnable mUpdateSeekbar;
+    private Boolean isPlaying = true;
+    private List<Results> lists;
+    private int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,32 +35,49 @@ public class PlayMusicActivity extends AppCompatActivity {
         setContentView(R.layout.activity_play_music);
 
         init();
-        setContentToScreen();
+        getDataFromSongList();
+        setContentToScreen(position);
         onClick();
-        playMusic();
+        startMusic(link);
+    }
 
-        Picasso.get()
-                .load(thumbnail)
-                .into(thumbnailPlay);
+    private void getDataFromSongList() {
+        Bundle bundle = getIntent().getExtras();
+        assert bundle != null;
+        lists = bundle.getParcelableArrayList("mylist");
+        position = getIntent().getIntExtra("POSITION", 0);
+    }
+
+    private void startMusic(String link) {
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mediaPlayer.setDataSource(link);
+            mediaPlayer.prepare(); // might take long! (for buffering, etc)
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mediaPlayer.start();
+        setUpSeekBar();
+    }
+
+    private void setUpSeekBar() {
         mSeekBar.setMax(mediaPlayer.getDuration());
-
-        final Handler mSeekbarUpdateHandler = new Handler();
-        Runnable mUpdateSeekbar = new Runnable() {
+        mSeekbarUpdateHandler = new Handler();
+        mUpdateSeekbar = new Runnable() {
             @Override
             public void run() {
                 mSeekBar.setProgress(mediaPlayer.getCurrentPosition());
                 mSeekbarUpdateHandler.postDelayed(this, 50);
             }
         };
-
         mSeekBar.postDelayed(mUpdateSeekbar, 0);
-        mSeekBar.removeCallbacks(mUpdateSeekbar);
+
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int process, boolean fromUser) {
-                if(fromUser){
-                    mediaPlayer.seekTo(process);
-                }
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser)
+                    mediaPlayer.seekTo(progress);
             }
 
             @Override
@@ -68,41 +90,18 @@ public class PlayMusicActivity extends AppCompatActivity {
 
             }
         });
-
-    }
-
-    private void onClick() {
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onBackPressed();
-                stopMusic();
-            }
-        });
-        pause_play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                stopMusic();
-            }
-        });
     }
 
     private void playMusic() {
         pause_play.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline_white_24dp));
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        try {
-            mediaPlayer.setDataSource(link);
-            mediaPlayer.prepare(); // might take long! (for buffering, etc)
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         mediaPlayer.start();
+        mSeekBar.postDelayed(mUpdateSeekbar, 0);
     }
 
-    private void stopMusic() {
+    private void pauseMusic() {
         pause_play.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_black_24dp));
-        mediaPlayer.stop();
+        mediaPlayer.pause();
+        mSeekBar.removeCallbacks(mUpdateSeekbar);
     }
 
     private void init() {
@@ -116,12 +115,68 @@ public class PlayMusicActivity extends AppCompatActivity {
         mSeekBar = findViewById(R.id.seekBar);
     }
 
-    private void setContentToScreen() {
-        String title = getIntent().getStringExtra("TITLE");
-        String created = getIntent().getStringExtra("CREATEDAT");
-        link = getIntent().getStringExtra("LINK");
-        thumbnail = getIntent().getStringExtra("THUMBNAIL");
+    private void setContentToScreen(int position) {
+        String title = lists.get(position).getTitle();
+        String created = lists.get(position).getCreatedAt();
+        link = lists.get(position).getLink();
+        thumbnail = lists.get(position).getThumbnail();
         mTitle.setText(title);
         mCreated.setText(created);
+        Picasso.get()
+                .load(thumbnail)
+                .into(thumbnailPlay);
+    }
+
+    private void onClick() {
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        pause_play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isPlaying){
+                    pauseMusic ();
+                    isPlaying = false;
+                }else {
+                    playMusic();
+                    isPlaying = true;
+                }
+            }
+        });
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mediaPlayer.stop();
+                if(position == lists.size()){
+                    setContentToScreen(position);
+                }else {
+                    position = position + 1;
+                    setContentToScreen(position);
+                }
+                startMusic(link);
+            }
+        });
+        previous.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mediaPlayer.stop();
+                if(position == 0){
+                    setContentToScreen(position);
+                }else {
+                    position = position - 1;
+                    setContentToScreen(position);
+                }
+                startMusic(link);
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        mediaPlayer.stop();
     }
 }

@@ -2,6 +2,8 @@ package com.dev.aman.soundcast.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,12 +17,13 @@ import com.dev.aman.soundcast.R;
 import com.dev.aman.soundcast.model.Results;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongListAdapterViewHolder>  {
 
-    List<Results> arrayList;
-    Context context;
+    private List<Results> arrayList;
+    private Context context;
 
     public SongListAdapter(List<Results> arrayList, Context ctxt) {
         this.arrayList = arrayList;
@@ -44,10 +47,10 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongLi
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, PlayMusicActivity.class);
-                intent.putExtra("LINK",arrayList.get(position).getLink());
-                intent.putExtra("TITLE",arrayList.get(position).getTitle());
-                intent.putExtra("THUMBNAIL",arrayList.get(position).getThumbnail());
-                intent.putExtra("CREATEDAT",arrayList.get(position).getCreatedAt());
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArrayList("mylist", (ArrayList<? extends Parcelable>) arrayList);
+                intent.putExtras(bundle);
+                intent.putExtra("POSITION",position);
                 context.startActivity(intent);
             }
         });
