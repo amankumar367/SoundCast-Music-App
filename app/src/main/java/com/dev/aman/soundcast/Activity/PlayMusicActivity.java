@@ -1,4 +1,4 @@
-package com.dev.aman.soundcast;
+package com.dev.aman.soundcast.Activity;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.dev.aman.soundcast.R;
 import com.dev.aman.soundcast.model.Results;
 import com.squareup.picasso.Picasso;
 
@@ -150,7 +151,7 @@ public class PlayMusicActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mediaPlayer.stop();
-                if(position == lists.size()){
+                if(position == (lists.size() - 1)){
                     setContentToScreen(position);
                 }else {
                     position = position + 1;

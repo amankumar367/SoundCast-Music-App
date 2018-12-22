@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme"
         android:name=".Application"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".SongList.MainActivity"
+        <activity android:name=".Activity.MainActivity"
             tools:ignore="InnerclassSeparator">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,8 +24,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".UploadMusicActivity" />
-        <activity android:name=".PlayMusicActivity"/>
+        <activity android:name=".Activity.UploadMusicActivity" />
+        <activity android:name=".Activity.PlayMusicActivity"/>
     </application>
 
 

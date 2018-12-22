@@ -1,16 +1,22 @@
-package com.dev.aman.soundcast;
+package com.dev.aman.soundcast.Activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
@@ -18,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dev.aman.soundcast.R;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -31,7 +38,7 @@ import java.io.InputStream;
 
 public class UploadMusicActivity extends AppCompatActivity {
 
-    public static final int RESULT_LOAD_IMAGE = 101;
+    private static final int RESULT_LOAD_IMAGE = 101;
     private static final int REQ_CODE_PICK_SOUNDFILE = 102;
     private EditText mTitle;
     private ImageView mImage, mMusic;
@@ -240,4 +247,5 @@ public class UploadMusicActivity extends AppCompatActivity {
 
         return buffer.toByteArray();
     }
+
 }

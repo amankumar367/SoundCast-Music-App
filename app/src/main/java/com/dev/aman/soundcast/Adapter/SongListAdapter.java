@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.dev.aman.soundcast.PlayMusicActivity;
+import com.dev.aman.soundcast.Activity.PlayMusicActivity;
 import com.dev.aman.soundcast.R;
 import com.dev.aman.soundcast.model.Results;
 import com.squareup.picasso.Picasso;
