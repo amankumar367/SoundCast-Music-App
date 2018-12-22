@@ -1,5 +1,6 @@
 package com.dev.aman.soundcast.SongList;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SongListAdapter adapter;
     private ImageView mUploadMusic;
+    private ProgressDialog mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +34,12 @@ public class MainActivity extends AppCompatActivity {
 
         init();
         onClick();
+
+        mProgressBar = new ProgressDialog(this);
+//        mProgressBar.setTitle("Loading Songs");
+        mProgressBar.setMessage("Loading Songs");
+        mProgressBar.setCanceledOnTouchOutside(false);
+        mProgressBar.show();
         SongListEndPoints apiclient = ApiClient.getClient().create(SongListEndPoints.class);
         apiclient.getSongList().enqueue(new Callback<SongList>() {
             @Override
@@ -39,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
                 adapter = new SongListAdapter(response.body().getResults(),MainActivity.this);
                 recyclerView.setHasFixedSize(false);
                 recyclerView.setAdapter(adapter);
+                mProgressBar.dismiss();
             }
 
             @Override
@@ -48,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
 
     private void init() {
         recyclerView = findViewById(R.id.recyclerView);

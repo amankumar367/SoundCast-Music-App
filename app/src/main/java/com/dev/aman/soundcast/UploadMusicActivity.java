@@ -1,6 +1,7 @@
 package com.dev.aman.soundcast;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -37,6 +38,8 @@ public class UploadMusicActivity extends AppCompatActivity {
     private TextView mUpload, mImageText, mMusicText;
     private byte[] imageByte = null;
     private byte[] musicByte = null;
+    private ProgressDialog mProgressBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,11 @@ public class UploadMusicActivity extends AppCompatActivity {
         setContentView(R.layout.activity_upload_music);
         init();
         onClick();
+
+        mProgressBar = new ProgressDialog(this);
+//        mProgressBar.setTitle("Loading Songs");
+        mProgressBar.setMessage("Uploading Song");
+        mProgressBar.setCanceledOnTouchOutside(false);
     }
 
     private void init() {
@@ -80,6 +88,7 @@ public class UploadMusicActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(checkValidContents()){
                     uploadFile();
+                    mProgressBar.show();
                 }else {
                     Toast.makeText(UploadMusicActivity.this, "Complete all process", Toast.LENGTH_SHORT).show();
                 }
@@ -137,8 +146,7 @@ public class UploadMusicActivity extends AppCompatActivity {
         return image;
     }
 
-    public String getFilename(Uri uri)
-    {
+    public String getFilename(Uri uri) {
         String result = null;
         if (uri.getScheme().equals("content")) {
             Cursor cursor = getContentResolver().query(uri, null, null, null, null);
@@ -157,6 +165,9 @@ public class UploadMusicActivity extends AppCompatActivity {
                 result = result.substring(cut + 1);
             }
         }
+        result = result.replaceAll("[^A-Za-z0-9.]","");
+//        result = result.substring(0, result.length() - 4);
+
         return result;
     }
 
@@ -171,7 +182,9 @@ public class UploadMusicActivity extends AppCompatActivity {
 
     private void uploadFile() {
 
-        ParseObject entity = new ParseObject("songs_library");
+        final ParseObject entity = new ParseObject("songs_library");
+        ParseFile audio = new ParseFile(mMusicText.getText().toString(), musicByte);
+        final ParseFile thumbnail = new ParseFile(mImageText.getText().toString(), imageByte);
 
         entity.put("title", mTitle.getText().toString());
         entity.put("link", "A string");
@@ -179,16 +192,33 @@ public class UploadMusicActivity extends AppCompatActivity {
         entity.put("music_file", new ParseFile(mMusicText.getText().toString(), musicByte));
         entity.put("thumbnail_file", new ParseFile(mImageText.getText().toString(), imageByte));
 
-        entity.saveInBackground(new SaveCallback() {
+        audio.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 if(e == null){
-                    Toast.makeText(UploadMusicActivity.this, "Upload Successfully" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }else {
-                    Toast.makeText(UploadMusicActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    thumbnail.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if(e == null){
+                                entity.saveInBackground(new SaveCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+                                        if(e == null){
+                                            Toast.makeText(UploadMusicActivity.this, "Upload Successfully", Toast.LENGTH_SHORT).show();
+                                            mProgressBar.dismiss();
+                                            finish();
+                                        }else {
+                                            Toast.makeText(UploadMusicActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
             }
         });
+
     }
 
     private byte[] parseIntoByte(Uri uri) throws IOException {
@@ -209,6 +239,5 @@ public class UploadMusicActivity extends AppCompatActivity {
         }
 
         return buffer.toByteArray();
-
     }
 }
